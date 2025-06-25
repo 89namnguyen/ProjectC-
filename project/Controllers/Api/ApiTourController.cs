@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using project.Models;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace project.Controllers.Api
 {
@@ -16,21 +17,43 @@ namespace project.Controllers.Api
         {
             _context = context;
         }
-        public async Task<ActionResult<IEnumerable<Tour>>> GetTours([FromQuery] string? name)
+        public async Task<IActionResult> GetTours(int page = 1, int pageSize = 6, int? categoryId = null, string? name = "", string? sort = "desc")
         {
-            if (_context.Tour == null)
+            IQueryable<Tour> query = _context.Tour;
+            if (!string.IsNullOrEmpty(name))
             {
-                return NotFound();
+                query = query.Where(t => t.Name.Contains(name));
             }
-            var tours = from p in _context.Tour
-                           select p;
-            if (!string.IsNullOrWhiteSpace(name))
+            if(categoryId != null )
             {
-                tours = from p in _context.Tour
-                           where p.Name.Contains(name)
-                           select p;
+                query = query.Where(t => t.CategoryId == categoryId);
+            }    
+            if (sort == "desc")
+            {
+                query = query.OrderByDescending(t => t.Id);
             }
-            return await tours.ToListAsync();
+            else if (sort == "asc")
+            {
+                query = query.OrderBy(t => t.Id);
+            } 
+
+
+            var tours = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            // Đếm tổng số tour sau khi filter
+            int totalCount = await query.CountAsync();
+            // Tính tổng số trang
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            // Trả về JSON gồm danh sách + tổng số trang
+            return Ok(new
+            {
+                items = tours,
+                totalPages = totalPages,
+                catId = categoryId
+            });
         }
 
         [HttpGet("{id}")]
