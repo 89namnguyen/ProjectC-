@@ -58,6 +58,7 @@ namespace project.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Tour tour)
         {
+            ViewBag.Category = await _context.Category.ToListAsync();
             if (ModelState.IsValid)
             {
                 if (tour.ImageFile != null)
@@ -77,7 +78,7 @@ namespace project.Areas.Admin.Controllers
                 }
                 _context.Add(tour);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Thêm người dùng thành công!";
+                TempData["SuccessMessage"] = "Thêm thành công!";
                 return RedirectToAction("Index");
             }
             //foreach (var item in ModelState)

@@ -148,6 +148,49 @@ namespace project.Controllers.Api
             return NoContent();
         }
 
+        [HttpGet("random")]
+        public async Task<IActionResult> GetRandomTours()
+        {
+            var randomTours = await _context.Tour
+                .OrderBy(t => Guid.NewGuid())
+                .Include(t => t.Category)
+                .Take(4)
+                .ToListAsync();
+            return Ok(randomTours);
+        }
+
+        [HttpGet("topviewed")]
+        public async Task<IActionResult> GetTopViewedTours()
+        {
+            var topViewedTours = await _context.Tour
+                .OrderByDescending(t => t.View)
+                .Include(t => t.Category)
+                .Take(3)
+                .ToListAsync();
+            return Ok(topViewedTours);
+        }
+
+        [HttpGet("latest")]
+        public async Task<IActionResult> GetLatestTour()
+        {
+            var latestTour = await _context.Tour
+                .OrderByDescending(t => t.CreatedDate)
+                .Include(t => t.Category)
+                .FirstOrDefaultAsync();
+            return Ok(latestTour);
+        }
+
+        [HttpGet("hotel")]
+        public async Task<IActionResult> GetHotelTours()
+        {
+            var hotelTours = await _context.Tour
+                .Include(t => t.Category)
+                .Where(t => t.CategoryId == 5)
+                .OrderByDescending(t => t.CreatedDate)
+                .Take(3)
+                .ToListAsync();
+            return Ok(hotelTours);
+        }
         private bool TourExists(int? id)
         {
             return (_context.Tour?.Any(e => e.Id == id)).GetValueOrDefault();

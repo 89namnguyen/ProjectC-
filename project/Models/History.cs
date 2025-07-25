@@ -8,7 +8,7 @@ namespace project.Models
         public int? UserId { get; set; }
 
         public int? TourId { get; set; }
-
+        [Required(ErrorMessage = "Không được để trống")]
         public string? Content { get; set; }
 
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
