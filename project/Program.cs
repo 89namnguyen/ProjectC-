@@ -46,7 +46,6 @@ builder.Services.AddCors(o =>
 builder.Services.AddControllers();
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
